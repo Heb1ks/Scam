@@ -169,6 +169,7 @@ func (s *BettingService) SettleMatch(ctx context.Context, matchID primitive.Obje
 		bet.Status = newStatus
 		bet.WinAmount = winAmount
 		bet.UpdatedAt = time.Now()
+
 		_, err = betsColl.UpdateOne(
 			ctx,
 			bson.M{"_id": bet.ID},
