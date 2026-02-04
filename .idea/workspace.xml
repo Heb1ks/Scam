@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="377a973c-7edb-4786-8779-3b4d8c88aa05" name="Changes" comment="front,auth,crud,db">
-      <change afterPath="$PROJECT_DIR$/../cs2-betting-platform/controllers/bet_controller.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../cs2-betting-platform/controllers/match_controller.go" afterDir="false" />
-    </list>
+    <list default="true" id="377a973c-7edb-4786-8779-3b4d8c88aa05" name="Changes" comment="front,auth,crud,db" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -23,6 +20,7 @@
   <component name="GOROOT" url="file://$PROJECT_DIR$/../../../../Program Files/Go" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../cs2-betting-platform" />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6
@@ -121,7 +119,15 @@
       <option name="project" value="LOCAL" />
       <updated>1770244821529</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="front,auth,crud,db">
+      <option name="closed" value="true" />
+      <created>1770245426105</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1770245426105</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
