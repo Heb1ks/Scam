@@ -1,17 +1,30 @@
 package main
 
 import (
-	"Scam/routes"
+	"log"
+	"net/http"
+	"time"
 
-	"github.com/gin-gonic/gin"
+	"cs2-betting-platform/config"
 )
 
 func main() {
-	r := gin.Default()
 
-	r.Use(gin.Logger())
+	if err := config.ConnectDB(); err != nil {
+		log.Fatal("Failed to connect to MongoDB:", err)
+	}
+	defer config.DisconnectDB()
 
-	routes.UserRoutes(r)
+	server := &http.Server{
+		Addr:         ":8080",
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 15 * time.Second,
+		IdleTimeout:  60 * time.Second,
+	}
 
-	r.Run(":8080")
+	log.Println("CS2 Betting Platform started on http://localhost:8080")
+
+	if err := server.ListenAndServe(); err != nil {
+		log.Fatal("Server failed to start:", err)
+	}
 }
