@@ -13,11 +13,19 @@ type MapPool struct {
 }
 
 type Team struct {
-	ID        primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-	TeamName  string             `json:"teamName" bson:"teamName"`
-	HLTVRank  int                `json:"hltvRank" bson:"hltvRank"`
-	FormWins  int                `json:"formWins" bson:"formWins"` // последние 5 вин
-	FormLoss  int                `json:"formLoss" bson:"formLoss"` // последине 5 лос
-	MapPool   MapPool            `json:"mapPool" bson:"mapPool"`
-	CreatedAt int64              `json:"createdAt" bson:"createdAt"`
+	ID       primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	TeamName string             `json:"teamName" bson:"teamName"`
+
+	// ОСНОВНЫЕ РЕЙТИНГИ
+	ValvePoints int `json:"valvePoints" bson:"valvePoints"` // 🆕 Официальный Valve рейтинг (1500-2000)
+	HLTVRank    int `json:"hltvRank" bson:"hltvRank"`       // Fallback если нет Valve Points
+
+	// ФОРМА
+	FormWins int `json:"formWins" bson:"formWins"` // последние 5 побед
+	FormLoss int `json:"formLoss" bson:"formLoss"` // последние 5 поражений
+
+	// КАРТЫ
+	MapPool MapPool `json:"mapPool" bson:"mapPool"`
+
+	CreatedAt int64 `json:"createdAt" bson:"createdAt"`
 }
