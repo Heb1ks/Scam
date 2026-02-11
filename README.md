@@ -61,7 +61,15 @@ To deliver a functional MVP, the following features will be implemented:
 
 ---
 
+## 6. ERD Diagram 
+
+<img width="871" height="701" alt="image" src="https://github.com/user-attachments/assets/da3d22e3-5bf4-4c8c-a171-dc723aadddd0" />
 
 
 ---
 
+## 7. Use-Case Diagram
+
+<img width="1481" height="673" alt="image" src="https://github.com/user-attachments/assets/b1ffbf9c-9c44-476a-a718-b4b718117bc6" />
+
+---
