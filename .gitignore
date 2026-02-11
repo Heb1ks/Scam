@@ -1,46 +1,37 @@
-# -----------------------
-# Go specific
-# -----------------------
+# Binaries
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
+SCAM
+scam
+
+# Test binary
 *.test
+
+# Output of the go coverage tool
 *.out
 
-# -----------------------
-# Vendor
-# -----------------------
-/vendor/
+# Dependency directories
+vendor/
 
-# -----------------------
-# Go modules
-# -----------------------
-/go.sum
-/go.mod
+# Go workspace file
+go.work
 
-# -----------------------
-# IDE / Editor
-# -----------------------
-.idea/
-*.iml
+# Environment variables
+.env
+
+# IDE
 .vscode/
+.idea/
 *.swp
 *.swo
+*~
 
-# -----------------------
-# OS generated
-# -----------------------
+# OS
 .DS_Store
 Thumbs.db
 
-# -----------------------
-# Environment files
-# -----------------------
-.env
-
-# -----------------------
 # Logs
-# -----------------------
 *.log

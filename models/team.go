@@ -12,12 +12,14 @@ type MapPool struct {
 	Anubis   float64 `json:"anubis" bson:"anubis"`
 }
 
+// Team представляет команду в системе
 type Team struct {
 	ID       primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	TeamName string             `json:"teamName" bson:"teamName"`
+	Logo     string             `json:"logo" bson:"logo"`
 
-	// ОСНОВНЫЕ РЕЙТИНГИ
-	ValvePoints int `json:"valvePoints" bson:"valvePoints"` // 🆕 Официальный Valve рейтинг (1500-2000)
+	// РЕЙТИНГИ
+	ValvePoints int `json:"valvePoints" bson:"valvePoints"` // Официальный Valve рейтинг (1500-2000)
 	HLTVRank    int `json:"hltvRank" bson:"hltvRank"`       // Fallback если нет Valve Points
 
 	// ФОРМА
@@ -27,5 +29,21 @@ type Team struct {
 	// КАРТЫ
 	MapPool MapPool `json:"mapPool" bson:"mapPool"`
 
+	// СТАТИСТИКА (новое!)
+	TotalMatches  int     `json:"totalMatches" bson:"totalMatches"`
+	WinRate       float64 `json:"winRate" bson:"winRate"`
+	AvgRoundsWon  float64 `json:"avgRoundsWon" bson:"avgRoundsWon"`
+	AvgRoundsLost float64 `json:"avgRoundsLost" bson:"avgRoundsLost"`
+
 	CreatedAt int64 `json:"createdAt" bson:"createdAt"`
+	UpdatedAt int64 `json:"updatedAt" bson:"updatedAt"`
+}
+
+// TeamInMatch представляет команду в конкретном матче
+type TeamInMatch struct {
+	ID        primitive.ObjectID `json:"id" bson:"id"`
+	Name      string             `json:"name" bson:"name"`
+	Logo      string             `json:"logo" bson:"logo"`
+	Odds      float64            `json:"odds" bson:"odds"`           // Текущий коэффициент
+	TotalBets float64            `json:"totalBets" bson:"totalBets"` // Сумма всех ставок на эту команду
 }
