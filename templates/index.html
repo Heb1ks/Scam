@@ -3,29 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SCAM 2.0 - CS2 Betting</title>
+    <title>CS2 Betting Platform </title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <!-- HEADER -->
         <header>
             <div class="header-content">
-                <h1>🎮 SCAM 2.0</h1>
-                <p class="tagline">CS2 Professional Betting Platform</p>
+                <h1>SCAM</h1>
+                <p class="tagline">Professional CS2 Betting Platform</p>
             </div>
             <div id="user-info" class="user-info" style="display: none;">
                 <div class="user-stats">
                     <div class="stat">
-                        <span class="stat-label">👤</span>
+                        <span class="stat-label"></span>
                         <span id="username-display"></span>
                     </div>
                     <div class="stat">
-                        <span class="stat-label">💰</span>
+                        <span class="stat-label"></span>
                         <span id="balance-display" class="balance">$0.00</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-label">📊</span>
+                        <span class="stat-label"></span>
                         <span id="winrate-display">W/R: 0%</span>
                     </div>
                 </div>
@@ -42,19 +45,19 @@
                 </div>
 
                 <div id="login-form" class="auth-form">
-                    <h2>Welcome Back</h2>
+                    <h2 style="margin-bottom: 25px;">Welcome Back</h2>
                     <input type="email" id="login-email" placeholder="Email" class="input">
                     <input type="password" id="login-password" placeholder="Password" class="input">
-                    <button onclick="login()" class="btn btn-primary">Login</button>
+                    <button onclick="login()" class="btn btn-primary" style="width: 100%;">Login</button>
                 </div>
 
                 <div id="register-form" class="auth-form" style="display: none;">
-                    <h2>Create Account</h2>
+                    <h2 style="margin-bottom: 25px;">Create Account</h2>
                     <input type="text" id="register-username" placeholder="Username" class="input">
                     <input type="email" id="register-email" placeholder="Email" class="input">
                     <input type="password" id="register-password" placeholder="Password" class="input">
-                    <button onclick="register()" class="btn btn-primary">Register</button>
-                    <p class="bonus-text">🎁 Get $100 bonus on signup!</p>
+                    <button onclick="register()" class="btn btn-primary" style="width: 100%;">Register</button>
+                    <p class="bonus-text"> Get $100 bonus on signup!</p>
                 </div>
             </div>
         </div>
@@ -62,10 +65,10 @@
         <!-- MAIN CONTENT -->
         <div id="main-content" style="display: none;">
             <div class="tabs">
-                <button onclick="showMatches()" class="tab-btn active" id="matches-tab">🎯 Matches</button>
-                <button onclick="showMyBets()" class="tab-btn" id="bets-tab">📋 My Bets</button>
-                <button onclick="showStats()" class="tab-btn" id="stats-tab">📊 Statistics</button>
-                <button onclick="showAdmin()" class="tab-btn" id="admin-tab">⚙️ Admin</button>
+                <button onclick="showMatches()" class="tab-btn active" id="matches-tab"> Matches</button>
+                <button onclick="showMyBets()" class="tab-btn" id="bets-tab"> My Bets</button>
+                <button onclick="showStats()" class="tab-btn" id="stats-tab"> Statistics</button>
+                <button onclick="showAdmin()" class="tab-btn" id="admin-tab" style="display: none;"> Admin</button>
             </div>
 
             <!-- MATCHES SECTION -->
@@ -86,14 +89,14 @@
             <div id="bets-section" class="content-section" style="display: none;">
                 <div class="section-header">
                     <h2>My Bets</h2>
-                    <button onclick="loadUserBets()" class="btn btn-secondary">🔄 Refresh</button>
+                    <button onclick="loadUserBets()" class="btn btn-secondary"> Refresh</button>
                 </div>
                 <div id="bets-list" class="bets-list"></div>
             </div>
 
-            <!-- STATISTICS SECTION (НОВОЕ!) -->
+            <!-- STATISTICS SECTION -->
             <div id="stats-section" class="content-section" style="display: none;">
-                <h2>📊 Your Statistics</h2>
+                <h2 style="margin-bottom: 30px;"> Your Statistics</h2>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-value" id="total-bets-stat">0</div>
@@ -124,10 +127,10 @@
 
             <!-- ADMIN SECTION -->
             <div id="admin-section" class="content-section" style="display: none;">
-                <h2>⚙️ Admin Panel</h2>
+                <h2 style="margin-bottom: 30px;"> Admin Panel</h2>
                 
                 <div class="admin-card">
-                    <h3>Create Match</h3>
+                    <h3> Create Match</h3>
                     <input type="text" id="team-a-id" placeholder="Team A ID" class="input">
                     <input type="text" id="team-b-id" placeholder="Team B ID" class="input">
                     <input type="text" id="tournament" placeholder="Tournament (e.g., IEM Katowice)" class="input">
@@ -141,7 +144,7 @@
                 </div>
 
                 <div class="admin-card">
-                    <h3>Settle Match</h3>
+                    <h3> Settle Match</h3>
                     <input type="text" id="settle-match-id" placeholder="Match ID" class="input">
                     <select id="winner" class="input">
                         <option value="team_a">Team A Wins</option>
@@ -152,7 +155,7 @@
                 </div>
 
                 <div class="admin-card">
-                    <h3>💰 Add Balance (Testing)</h3>
+                    <h3> Add Balance (Testing)</h3>
                     <input type="number" id="add-balance-amount" placeholder="Amount" class="input">
                     <button onclick="addBalance()" class="btn btn-primary">Add Balance</button>
                 </div>
@@ -164,7 +167,7 @@
     <div id="bet-modal" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close" onclick="closeBetModal()">&times;</span>
-            <h2>Place Your Bet</h2>
+            <h2 style="margin-bottom: 20px;">Place Your Bet</h2>
             <div id="bet-match-info"></div>
             <div class="bet-options">
                 <div class="bet-option" id="bet-team-a">
@@ -178,7 +181,7 @@
             </div>
             <input type="number" id="bet-amount" placeholder="Bet Amount" class="input" min="1">
             <div id="potential-win" class="potential-win"></div>
-            <button onclick="placeBet()" class="btn btn-primary">Place Bet</button>
+            <button onclick="placeBet()" class="btn btn-primary" style="width: 100%;">Place Bet</button>
         </div>
     </div>
 

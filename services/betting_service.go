@@ -80,7 +80,7 @@ func (s *BettingService) PlaceBet(userID, matchID primitive.ObjectID, team strin
 	}
 
 	// Начинаем транзакцию (атомарная операция)
-	// 1. Вычитаем деньги у пользователя
+	//  Вычитаем деньги у пользователя
 	_, err = usersColl.UpdateOne(
 		ctx,
 		bson.M{"_id": userID, "balance": bson.M{"$gte": amount}},
@@ -99,7 +99,7 @@ func (s *BettingService) PlaceBet(userID, matchID primitive.ObjectID, team strin
 		return nil, errors.New("failed to update user balance")
 	}
 
-	// 2. Добавляем ставку в базу
+	//  Добавляем ставку в базу
 	_, err = betsColl.InsertOne(ctx, bet)
 	if err != nil {
 		// Откатываем баланс пользователя
@@ -117,7 +117,7 @@ func (s *BettingService) PlaceBet(userID, matchID primitive.ObjectID, team strin
 		return nil, errors.New("failed to place bet")
 	}
 
-	// 3. Обновляем сумму ставок на команду в матче
+	//  Обновляем сумму ставок на команду в матче
 	updateField := "teamA.totalBets"
 	if team == "team_b" {
 		updateField = "teamB.totalBets"
@@ -138,7 +138,7 @@ func (s *BettingService) PlaceBet(userID, matchID primitive.ObjectID, team strin
 		},
 	)
 
-	// 4. Пересчитываем коэффициенты (они меняются динамически!)
+	//  Пересчитываем коэффициенты (они меняются динамически!)
 	s.oddsService.UpdateMatchOdds(matchID)
 
 	return &bet, nil

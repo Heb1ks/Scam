@@ -15,14 +15,14 @@ func SetupRoutes(oddsService *services.OddsService, bettingService *services.Bet
 	matchController := controllers.NewMatchController(oddsService)
 	betController := controllers.NewBetController(bettingService)
 
-	// =============== USER ROUTES ===============
+	//  USER ROUTES
 	mux.HandleFunc("/api/users/register", userController.Register)
 	mux.HandleFunc("/api/users/login", userController.Login)
 	mux.HandleFunc("/api/users/profile", userController.GetProfile)
 	mux.HandleFunc("/api/users/balance", userController.GetBalance)
 	mux.HandleFunc("/api/users/add-balance", userController.AddBalance)
 
-	// =============== MATCH ROUTES ===============
+	// MATCH ROUTES
 	mux.HandleFunc("/api/matches", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			matchController.CreateMatch(w, r)
@@ -32,22 +32,22 @@ func SetupRoutes(oddsService *services.OddsService, bettingService *services.Bet
 	})
 	mux.HandleFunc("/api/matches/details", matchController.GetMatch)
 
-	// =============== BET ROUTES ===============
+	// BET ROUTES
 	mux.HandleFunc("/api/bets/place", betController.PlaceBet)
 	mux.HandleFunc("/api/bets/user", betController.GetUserBets)
 	mux.HandleFunc("/api/bets/settle", betController.SettleMatch)
 
-	// =============== HEALTH CHECK ===============
+	// HEALTH CHECk
 	mux.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(`{"status":"healthy"}`))
 	})
 
-	// =============== STATIC FILES ===============
+	// STATIC FILES
 	fs := http.FileServer(http.Dir("./static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	// =============== INDEX PAGE ===============
+	// INDEX PAGE
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/" {
 			http.ServeFile(w, r, "./templates/index.html")

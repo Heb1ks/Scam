@@ -22,10 +22,6 @@ func NewOddsService() *OddsService {
 	return &OddsService{}
 }
 
-// ============================================
-// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-// ============================================
-
 func round2(x float64) float64 {
 	return math.Round(x*100) / 100
 }
@@ -39,10 +35,6 @@ func clamp01(x float64) float64 {
 	}
 	return x
 }
-
-// ============================================
-// АЛГОРИТМ ПОДСЧЁТА КОЭФФИЦИЕНТОВ (VALVE POINTS)
-// ============================================
 
 // Вычисляет ожидаемую вероятность победы на основе Valve Points
 func valveExpectedScore(valveA, valveB float64) float64 {
@@ -68,6 +60,7 @@ func (s *OddsService) CalculateProbabilities(teamA, teamB models.Team) (float64,
 			valveA = 1500
 		}
 	}
+
 	if valveB == 0 {
 		valveB = 2000 - math.Log(float64(teamB.HLTVRank))*100
 		if valveB < 1500 {
@@ -92,6 +85,7 @@ func (s *OddsService) CalculateProbabilities(teamA, teamB models.Team) (float64,
 		formPowerA = 0.5
 		formPowerB = 0.5
 	}
+
 	scoreFormA := formPowerA / (formPowerA + formPowerB)
 
 	// Компонент карт
@@ -102,6 +96,7 @@ func (s *OddsService) CalculateProbabilities(teamA, teamB models.Team) (float64,
 	if valveA > valveB && mapPowerA > 0.6 {
 		mapPowerA *= 1.1
 	}
+
 	if valveB > valveA && mapPowerB > 0.6 {
 		mapPowerB *= 1.1
 	}
@@ -110,6 +105,7 @@ func (s *OddsService) CalculateProbabilities(teamA, teamB models.Team) (float64,
 		mapPowerA = 0.5
 		mapPowerB = 0.5
 	}
+
 	scoreMapA := mapPowerA / (mapPowerA + mapPowerB)
 
 	// Финальный расчёт
@@ -120,11 +116,7 @@ func (s *OddsService) CalculateProbabilities(teamA, teamB models.Team) (float64,
 	return pA, pB
 }
 
-// ============================================
-// ДИНАМИЧЕСКИЕ КОЭФФИЦИЕНТЫ (НОВОЕ!)
-// ============================================
-
-// Рассчитывает коэффициенты с учётом ставок (динамика)
+// Рассчитывает коэффициенты с учётом ставок
 func (s *OddsService) CalculateDynamicOdds(pA, pB, totalBetsA, totalBetsB, margin float64) (float64, float64) {
 	totalBets := totalBetsA + totalBetsB
 
@@ -139,13 +131,12 @@ func (s *OddsService) CalculateDynamicOdds(pA, pB, totalBetsA, totalBetsB, margi
 	percentA := totalBetsA / totalBets
 	percentB := totalBetsB / totalBets
 
-	// Корректируем вероятности на основе распределения ставок
-	// Если на команду A поставили много - её коэффициент падает
-	// Используем логарифмическую шкалу для плавности
+	// Если на команду A поставили много - её вероятность растёт, коэффициент падает
 	betInfluence := 0.25 // сила влияния ставок (25%)
 
-	adjustedPA := pA + (percentB-percentA)*betInfluence
-	adjustedPB := pB + (percentA-percentB)*betInfluence
+	// Правильная формула: больше ставок = выше вероятность = ниже коэффициент
+	adjustedPA := pA + (percentA-percentB)*betInfluence
+	adjustedPB := pB + (percentB-percentA)*betInfluence
 
 	// Нормализуем обратно к 1.0
 	sum := adjustedPA + adjustedPB
@@ -163,6 +154,7 @@ func (s *OddsService) CalculateDynamicOdds(pA, pB, totalBetsA, totalBetsB, margi
 	if oddA < 1.01 {
 		oddA = 1.01
 	}
+
 	if oddB < 1.01 {
 		oddB = 1.01
 	}
@@ -177,12 +169,9 @@ func (s *OddsService) CalculateInitialOdds() (float64, float64) {
 	p := 0.5
 	pWithMargin := p * (1 + margin)
 	odds := round2(1 / pWithMargin)
+
 	return odds, odds
 }
-
-// ============================================
-// ОБНОВЛЕНИЕ КОЭФФИЦИЕНТОВ В РЕАЛЬНОМ ВРЕМЕНИ
-// ============================================
 
 // Обновляет коэффициенты для всех активных матчей
 func (s *OddsService) UpdateMatchOdds(matchID primitive.ObjectID) error {
@@ -196,6 +185,7 @@ func (s *OddsService) UpdateMatchOdds(matchID primitive.ObjectID) error {
 	// Получаем матч
 	var match models.Match
 	err := matchColl.FindOne(ctx, bson.M{"_id": matchID}).Decode(&match)
+
 	if err != nil {
 		return err
 	}
@@ -234,7 +224,7 @@ func (s *OddsService) StartOddsUpdateWorker(interval time.Duration) {
 		ticker := time.NewTicker(interval)
 		defer ticker.Stop()
 
-		log.Printf("🔄 Odds update worker started (interval: %v)", interval)
+		log.Printf(" Odds update worker started (interval: %v)", interval)
 
 		for range ticker.C {
 			ctx := context.Background()
@@ -246,6 +236,7 @@ func (s *OddsService) StartOddsUpdateWorker(interval time.Duration) {
 					"$in": []string{"upcoming", "live"},
 				},
 			})
+
 			if err != nil {
 				continue
 			}

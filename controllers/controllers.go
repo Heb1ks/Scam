@@ -15,9 +15,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// ===================================
 // MATCH CONTROLLER
-// ===================================
 
 type MatchController struct {
 	oddsService *services.OddsService
@@ -129,9 +127,7 @@ func (mc *MatchController) GetMatch(w http.ResponseWriter, r *http.Request) {
 	utils.RespondJSON(w, http.StatusOK, match)
 }
 
-// ===================================
 // BET CONTROLLER
-// ===================================
 
 type BetController struct {
 	bettingService *services.BettingService

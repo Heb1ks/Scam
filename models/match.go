@@ -20,17 +20,15 @@ type Match struct {
 	TeamA      TeamInMatch        `json:"teamA" bson:"teamA"`
 	TeamB      TeamInMatch        `json:"teamB" bson:"teamB"`
 	Tournament string             `json:"tournament" bson:"tournament"`
-	Format     string             `json:"format" bson:"format"` // BO1, BO3, BO5
+	Format     string             `json:"format" bson:"format"`
 	Status     MatchStatus        `json:"status" bson:"status"`
 	StartTime  time.Time          `json:"startTime" bson:"startTime"`
 
-	// Результаты (новое!)
-	Winner     string `json:"winner,omitempty" bson:"winner,omitempty"`         // "team_a" или "team_b"
-	FinalScore string `json:"finalScore,omitempty" bson:"finalScore,omitempty"` // например "2:1"
+	Winner     string `json:"winner,omitempty" bson:"winner,omitempty"`
+	FinalScore string `json:"finalScore,omitempty" bson:"finalScore,omitempty"`
 
-	// Метаинформация
-	TotalBetsAmount float64 `json:"totalBetsAmount" bson:"totalBetsAmount"` // Общая сумма ставок
-	BetsCount       int     `json:"betsCount" bson:"betsCount"`             // Количество ставок
+	TotalBetsAmount float64 `json:"totalBetsAmount" bson:"totalBetsAmount"`
+	BetsCount       int     `json:"betsCount" bson:"betsCount"`
 
 	CreatedAt time.Time `json:"createdAt" bson:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt" bson:"updatedAt"`

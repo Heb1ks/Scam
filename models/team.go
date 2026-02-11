@@ -29,7 +29,6 @@ type Team struct {
 	// КАРТЫ
 	MapPool MapPool `json:"mapPool" bson:"mapPool"`
 
-	// СТАТИСТИКА (новое!)
 	TotalMatches  int     `json:"totalMatches" bson:"totalMatches"`
 	WinRate       float64 `json:"winRate" bson:"winRate"`
 	AvgRoundsWon  float64 `json:"avgRoundsWon" bson:"avgRoundsWon"`
@@ -44,6 +43,6 @@ type TeamInMatch struct {
 	ID        primitive.ObjectID `json:"id" bson:"id"`
 	Name      string             `json:"name" bson:"name"`
 	Logo      string             `json:"logo" bson:"logo"`
-	Odds      float64            `json:"odds" bson:"odds"`           // Текущий коэффициент
-	TotalBets float64            `json:"totalBets" bson:"totalBets"` // Сумма всех ставок на эту команду
+	Odds      float64            `json:"odds" bson:"odds"`
+	TotalBets float64            `json:"totalBets" bson:"totalBets"`
 }

@@ -3,8 +3,7 @@ let selectedMatch = null;
 let selectedTeam = null;
 let currentFilter = 'all';
 
-// ==================== AUTH ====================
-
+//AUTH 
 function showLogin() {
     document.getElementById('login-form').style.display = 'block';
     document.getElementById('register-form').style.display = 'none';
@@ -39,12 +38,12 @@ async function register() {
         const data = await response.json();
 
         if (response.ok) {
-            alert('✅ Registration successful! You received $100 bonus!');
+            alert(' Registration successful! You received $100 bonus!');
             currentUser = data.user;
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             showMainContent();
         } else {
-            alert('❌ ' + data.error);
+            alert(' ' + data.error);
         }
     } catch (error) {
         alert('Error: ' + error.message);
@@ -74,7 +73,7 @@ async function login() {
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             showMainContent();
         } else {
-            alert('❌ ' + data.error);
+            alert('Error: ' + data.error);
         }
     } catch (error) {
         alert('Error: ' + error.message);
@@ -94,13 +93,30 @@ function showMainContent() {
     document.getElementById('main-content').style.display = 'block';
     document.getElementById('user-info').style.display = 'flex';
     document.getElementById('username-display').textContent = currentUser.username;
+    
+    // ПРОВЕРКА НА АДМИНА ПО ПОЛЮ ROLE 
+    const adminTab = document.getElementById('admin-tab');
+    console.log('User role:', currentUser.role); // Для отладки
+    
+    if (currentUser.role === 'admin') {
+        adminTab.style.display = 'block';
+        console.log('Admin access granted');
+    } else {
+        adminTab.style.display = 'none';
+        console.log(' Regular user');
+    }
+    
     updateBalance();
     updateUserStats();
     loadMatches();
 }
 
-// ==================== BALANCE ====================
+// Вспомогательная функция проверки прав админа
+function isAdmin() {
+    return currentUser && currentUser.role === 'admin';
+}
 
+// BALANCE 
 async function updateBalance() {
     try {
         const response = await fetch(`/api/users/balance?user_id=${currentUser.id}`);
@@ -122,6 +138,12 @@ async function updateUserStats() {
         const data = await response.json();
         
         if (response.ok) {
+            // Обновляем роль 
+            if (data.role) {
+                currentUser.role = data.role;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            }
+            
             // Обновляем win rate в header
             const winRate = data.winRate || 0;
             document.getElementById('winrate-display').textContent = `W/R: ${winRate.toFixed(1)}%`;
@@ -143,8 +165,7 @@ async function updateUserStats() {
     }
 }
 
-// ==================== NAVIGATION ====================
-
+//NAVIGATION 
 function showMatches() {
     document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
     document.getElementById('matches-section').style.display = 'block';
@@ -167,6 +188,12 @@ function showStats() {
 }
 
 function showAdmin() {
+    // Проверка прав админа по полю role
+    if (!isAdmin()) {
+        alert(' Access denied! Admin panel is only available for administrators.');
+        return;
+    }
+    
     document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
     document.getElementById('admin-section').style.display = 'block';
     setActiveTab('admin-tab');
@@ -177,8 +204,7 @@ function setActiveTab(tabId) {
     document.getElementById(tabId).classList.add('active');
 }
 
-// ==================== MATCHES ====================
-
+// MATCHES 
 async function loadMatches() {
     try {
         let url = '/api/matches';
@@ -188,7 +214,6 @@ async function loadMatches() {
 
         const response = await fetch(url);
         const matches = await response.json();
-
         const matchesList = document.getElementById('matches-list');
         
         if (!matches || matches.length === 0) {
@@ -199,7 +224,7 @@ async function loadMatches() {
         matchesList.innerHTML = matches.map(match => `
             <div class="match-card">
                 <div class="match-header">
-                    <span class="tournament">🏆 ${match.tournament || 'Tournament'}</span>
+                    <span class="tournament"> ${match.tournament || 'Tournament'}</span>
                     <span class="match-status status-${match.status}">${match.status.toUpperCase()}</span>
                 </div>
                 
@@ -252,8 +277,7 @@ function filterMatches(status) {
     loadMatches();
 }
 
-// ==================== BETTING ====================
-
+//  BETTING
 async function openBetModal(matchId) {
     try {
         const response = await fetch(`/api/matches/details?id=${matchId}`);
@@ -282,7 +306,6 @@ async function openBetModal(matchId) {
 
         document.getElementById('bet-amount').value = '';
         document.getElementById('potential-win').textContent = '';
-
         document.getElementById('bet-modal').style.display = 'flex';
 
         // Click handlers
@@ -320,7 +343,7 @@ function calculatePotentialWin() {
     const profit = (potentialWin - amount).toFixed(2);
     
     document.getElementById('potential-win').innerHTML = `
-        💰 Potential Win: $${potentialWin} (Profit: $${profit})
+         Potential Win: $${potentialWin} (Profit: $${profit})
     `;
 }
 
@@ -363,9 +386,9 @@ async function placeBet() {
             closeBetModal();
             updateBalance();
             updateUserStats();
-            loadMatches(); // Обновляем матчи (коэффициенты могли измениться!)
+            loadMatches(); // Обновляем матчи 
         } else {
-            alert('❌ ' + data.error);
+            alert('Error: ' + data.error);
         }
     } catch (error) {
         alert('Error: ' + error.message);
@@ -378,13 +401,11 @@ function closeBetModal() {
     selectedTeam = null;
 }
 
-// ==================== MY BETS ====================
-
+// MY BETS 
 async function loadUserBets() {
     try {
         const response = await fetch(`/api/bets/user?user_id=${currentUser.id}`);
         const bets = await response.json();
-
         const betsList = document.getElementById('bets-list');
         
         if (!bets || bets.length === 0) {
@@ -394,7 +415,6 @@ async function loadUserBets() {
 
         betsList.innerHTML = bets.map(bet => {
             const statusClass = bet.status === 'won' ? 'won' : bet.status === 'lost' ? 'lost' : 'pending';
-            const statusEmoji = bet.status === 'won' ? '✅' : bet.status === 'lost' ? '❌' : '⏳';
             
             return `
                 <div class="bet-card ${statusClass}">
@@ -403,15 +423,15 @@ async function loadUserBets() {
                         <span>${statusEmoji} ${bet.status.toUpperCase()}</span>
                     </div>
                     <div style="font-size:0.9em;color:#888;">
-                        Team: ${bet.team === 'team_a' ? 'A' : 'B'} • 
-                        Amount: $${bet.amount.toFixed(2)} • 
+                        Team: ${bet.team === 'team_a' ? 'A' : 'B'} •
+                        Amount: $${bet.amount.toFixed(2)} •
                         Odds: ${bet.odds.toFixed(2)}
                     </div>
                     <div style="margin-top:10px;font-weight:bold;">
-                        ${bet.status === 'won' ? 
-                            `💰 Won: $${bet.actualWinnings.toFixed(2)}` : 
-                            bet.status === 'lost' ? 
-                            `Lost: $${bet.amount.toFixed(2)}` : 
+                        ${bet.status === 'won' ?
+                            ` Won: $${bet.actualWinnings.toFixed(2)}` :
+                            bet.status === 'lost' ?
+                            `Lost: $${bet.amount.toFixed(2)}` :
                             `Potential Win: $${bet.potentialWin.toFixed(2)}`
                         }
                     </div>
@@ -426,9 +446,14 @@ async function loadUserBets() {
     }
 }
 
-// ==================== ADMIN ====================
-
+// ADMIN 
 async function createMatch() {
+    // Проверка прав админа
+    if (!isAdmin()) {
+        alert(' Access denied! Admin privileges required.');
+        return;
+    }
+    
     const teamAId = document.getElementById('team-a-id').value;
     const teamBId = document.getElementById('team-b-id').value;
     const tournament = document.getElementById('tournament').value;
@@ -456,14 +481,14 @@ async function createMatch() {
         const data = await response.json();
 
         if (response.ok) {
-            alert('✅ Match created successfully!');
+            alert(' Match created successfully!');
             document.getElementById('team-a-id').value = '';
             document.getElementById('team-b-id').value = '';
             document.getElementById('tournament').value = '';
             document.getElementById('start-time').value = '';
             loadMatches();
         } else {
-            alert('❌ ' + data.error);
+            alert(' ' + data.error);
         }
     } catch (error) {
         alert('Error: ' + error.message);
@@ -471,6 +496,12 @@ async function createMatch() {
 }
 
 async function settleMatch() {
+    // Проверка прав админа
+    if (!isAdmin()) {
+        alert(' Access denied! Admin privileges required.');
+        return;
+    }
+    
     const matchId = document.getElementById('settle-match-id').value;
     const winner = document.getElementById('winner').value;
 
@@ -492,13 +523,13 @@ async function settleMatch() {
         const data = await response.json();
 
         if (response.ok) {
-            alert('✅ Match settled successfully!');
+            alert(' Match settled successfully!');
             document.getElementById('settle-match-id').value = '';
             loadMatches();
             updateBalance();
             updateUserStats();
         } else {
-            alert('❌ ' + data.error);
+            alert(' ' + data.error);
         }
     } catch (error) {
         alert('Error: ' + error.message);
@@ -506,6 +537,12 @@ async function settleMatch() {
 }
 
 async function addBalance() {
+    // Проверка прав админа
+    if (!isAdmin()) {
+        alert(' Access denied! Admin privileges required.');
+        return;
+    }
+    
     const amount = parseFloat(document.getElementById('add-balance-amount').value);
 
     if (!amount || amount <= 0) {
@@ -526,26 +563,23 @@ async function addBalance() {
         const data = await response.json();
 
         if (response.ok) {
-            alert('✅ Balance added successfully!');
+            alert(' Balance added successfully!');
             document.getElementById('add-balance-amount').value = '';
             updateBalance();
         } else {
-            alert('❌ ' + data.error);
+            alert(' ' + data.error);
         }
     } catch (error) {
         alert('Error: ' + error.message);
     }
 }
 
-// ==================== AUTO-REFRESH ====================
 
 setInterval(() => {
     if (currentUser && document.getElementById('matches-section').style.display === 'block') {
         loadMatches();
     }
 }, 30000); // Обновляем матчи каждые 30 секунд
-
-// ==================== INIT ====================
 
 window.onload = () => {
     const storedUser = localStorage.getItem('currentUser');

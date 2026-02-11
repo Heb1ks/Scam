@@ -22,6 +22,11 @@ func NewUserController() *UserController {
 
 // Регистрация пользователя
 func (uc *UserController) Register(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		utils.RespondError(w, http.StatusMethodNotAllowed, "Method not allowed")
+		return
+	}
+
 	var req struct {
 		Username string `json:"username"`
 		Email    string `json:"email"`
@@ -41,27 +46,28 @@ func (uc *UserController) Register(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	usersColl := config.GetCollection("users")
 
-	// Проверяем, существует ли пользователь
-	var existing models.User
-	err := usersColl.FindOne(ctx, bson.M{
-		"$or": []bson.M{
-			{"email": req.Email},
-			{"username": req.Username},
-		},
-	}).Decode(&existing)
-
+	// Проверяем существование пользователя
+	var existingUser models.User
+	err := usersColl.FindOne(ctx, bson.M{"email": req.Email}).Decode(&existingUser)
 	if err == nil {
-		utils.RespondError(w, http.StatusConflict, "User already exists")
+		utils.RespondError(w, http.StatusBadRequest, "User with this email already exists")
 		return
 	}
 
-	// Создаём пользователя
+	// АВТОМАТИЧЕСКОЕ НАЗНАЧЕНИЕ РОЛИ
+	role := models.RoleUser // По умолчанию обычный пользователь
+	if req.Username == "Admin" {
+		role = models.RoleAdmin // Если username = "Admin", делаем админом
+	}
+
+	// Создаём нового пользователя
 	user := models.User{
 		ID:           primitive.NewObjectID(),
 		Username:     req.Username,
 		Email:        req.Email,
 		PasswordHash: utils.HashPassword(req.Password),
-		Balance:      100.0, // Начальный бонус
+		Balance:      100.0,
+		Role:         role,
 		CreatedAt:    time.Now(),
 		UpdatedAt:    time.Now(),
 	}
@@ -74,17 +80,17 @@ func (uc *UserController) Register(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondJSON(w, http.StatusCreated, map[string]interface{}{
 		"message": "User registered successfully",
-		"user": map[string]interface{}{
-			"id":       user.ID.Hex(),
-			"username": user.Username,
-			"email":    user.Email,
-			"balance":  user.Balance,
-		},
+		"user":    user,
 	})
 }
 
-// Вход пользователя
+// Логин пользователя
 func (uc *UserController) Login(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		utils.RespondError(w, http.StatusMethodNotAllowed, "Method not allowed")
+		return
+	}
+
 	var req struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
@@ -100,6 +106,7 @@ func (uc *UserController) Login(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
 	err := usersColl.FindOne(ctx, bson.M{"email": req.Email}).Decode(&user)
+
 	if err != nil {
 		utils.RespondError(w, http.StatusUnauthorized, "Invalid credentials")
 		return
@@ -112,12 +119,7 @@ func (uc *UserController) Login(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondJSON(w, http.StatusOK, map[string]interface{}{
 		"message": "Login successful",
-		"user": map[string]interface{}{
-			"id":       user.ID.Hex(),
-			"username": user.Username,
-			"email":    user.Email,
-			"balance":  user.Balance,
-		},
+		"user":    user,
 	})
 }
 
@@ -140,6 +142,7 @@ func (uc *UserController) GetProfile(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
 	err = usersColl.FindOne(ctx, bson.M{"_id": objID}).Decode(&user)
+
 	if err != nil {
 		utils.RespondError(w, http.StatusNotFound, "User not found")
 		return
@@ -148,21 +151,22 @@ func (uc *UserController) GetProfile(w http.ResponseWriter, r *http.Request) {
 	// Рассчитываем win rate
 	winRate := 0.0
 	if user.TotalBets > 0 {
-		winRate = float64(user.WonBets) / float64(user.TotalBets) * 100
+		winRate = (float64(user.WonBets) / float64(user.TotalBets)) * 100
 	}
 
 	utils.RespondJSON(w, http.StatusOK, map[string]interface{}{
-		"id":            user.ID.Hex(),
+		"id":            user.ID,
 		"username":      user.Username,
 		"email":         user.Email,
 		"balance":       user.Balance,
+		"role":          user.Role, // НОВОЕ: отправляем роль
 		"totalBets":     user.TotalBets,
 		"wonBets":       user.WonBets,
 		"lostBets":      user.LostBets,
-		"winRate":       round2(winRate),
 		"totalWagered":  user.TotalWagered,
 		"totalWinnings": user.TotalWinnings,
 		"profitLoss":    user.ProfitLoss,
+		"winRate":       winRate,
 	})
 }
 
@@ -185,6 +189,7 @@ func (uc *UserController) GetBalance(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
 	err = usersColl.FindOne(ctx, bson.M{"_id": objID}).Decode(&user)
+
 	if err != nil {
 		utils.RespondError(w, http.StatusNotFound, "User not found")
 		return
@@ -195,8 +200,13 @@ func (uc *UserController) GetBalance(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// Добавление баланса (для тестирования)
+// Добавление баланса
 func (uc *UserController) AddBalance(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		utils.RespondError(w, http.StatusMethodNotAllowed, "Method not allowed")
+		return
+	}
+
 	var req struct {
 		UserID string  `json:"user_id"`
 		Amount float64 `json:"amount"`
