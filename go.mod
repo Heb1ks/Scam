@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/Heb1ks/ap2-generateRepo v1.0.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect

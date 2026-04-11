@@ -46,7 +46,7 @@ func valveExpectedScore(valveA, valveB float64) float64 {
 // Рассчитывает вероятности победы команд с учётом всех факторов
 func (s *OddsService) CalculateProbabilities(teamA, teamB models.Team) (float64, float64) {
 	// Веса факторов
-	wValve := 0.60 // Valve Points (главный фактор)
+	wValve := 0.60 // Valve Points главный
 	wForm := 0.25  // Форма команды
 	wMap := 0.15   // Сила на картах
 

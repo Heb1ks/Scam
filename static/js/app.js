@@ -3,7 +3,7 @@ let selectedMatch = null;
 let selectedTeam = null;
 let currentFilter = 'all';
 
-//AUTH 
+// AUTH 
 function showLogin() {
     document.getElementById('login-form').style.display = 'block';
     document.getElementById('register-form').style.display = 'none';
@@ -43,7 +43,7 @@ async function register() {
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             showMainContent();
         } else {
-            alert(' ' + data.error);
+            alert('error ' + data.error);
         }
     } catch (error) {
         alert('Error: ' + error.message);
@@ -73,7 +73,7 @@ async function login() {
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             showMainContent();
         } else {
-            alert('Error: ' + data.error);
+            alert('error ' + data.error);
         }
     } catch (error) {
         alert('Error: ' + error.message);
@@ -94,13 +94,13 @@ function showMainContent() {
     document.getElementById('user-info').style.display = 'flex';
     document.getElementById('username-display').textContent = currentUser.username;
     
-    // ПРОВЕРКА НА АДМИНА ПО ПОЛЮ ROLE 
+    // ПРОВЕРКА НА АДМИНА ПО ПОЛЮ ROLE
     const adminTab = document.getElementById('admin-tab');
-    console.log('User role:', currentUser.role); // Для отладки
+    console.log('User role:', currentUser.role); 
     
     if (currentUser.role === 'admin') {
         adminTab.style.display = 'block';
-        console.log('Admin access granted');
+        console.log(' Admin access granted');
     } else {
         adminTab.style.display = 'none';
         console.log(' Regular user');
@@ -116,7 +116,7 @@ function isAdmin() {
     return currentUser && currentUser.role === 'admin';
 }
 
-// BALANCE 
+// BALANCE
 async function updateBalance() {
     try {
         const response = await fetch(`/api/users/balance?user_id=${currentUser.id}`);
@@ -165,7 +165,7 @@ async function updateUserStats() {
     }
 }
 
-//NAVIGATION 
+//  NAVIGATION
 function showMatches() {
     document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
     document.getElementById('matches-section').style.display = 'block';
@@ -204,7 +204,7 @@ function setActiveTab(tabId) {
     document.getElementById(tabId).classList.add('active');
 }
 
-// MATCHES 
+// MATCHES
 async function loadMatches() {
     try {
         let url = '/api/matches';
@@ -277,7 +277,7 @@ function filterMatches(status) {
     loadMatches();
 }
 
-//  BETTING
+// BETTING 
 async function openBetModal(matchId) {
     try {
         const response = await fetch(`/api/matches/details?id=${matchId}`);
@@ -343,7 +343,7 @@ function calculatePotentialWin() {
     const profit = (potentialWin - amount).toFixed(2);
     
     document.getElementById('potential-win').innerHTML = `
-         Potential Win: $${potentialWin} (Profit: $${profit})
+        Potential Win: $${potentialWin} (Profit: $${profit})
     `;
 }
 
@@ -382,13 +382,13 @@ async function placeBet() {
         const data = await response.json();
 
         if (response.ok) {
-            alert('✅ Bet placed successfully!');
+            alert(' Bet placed successfully!');
             closeBetModal();
             updateBalance();
             updateUserStats();
             loadMatches(); // Обновляем матчи 
         } else {
-            alert('Error: ' + data.error);
+            alert('error' + data.error);
         }
     } catch (error) {
         alert('Error: ' + error.message);
@@ -401,25 +401,38 @@ function closeBetModal() {
     selectedTeam = null;
 }
 
-// MY BETS 
+//  MY BETS 
 async function loadUserBets() {
     try {
         const response = await fetch(`/api/bets/user?user_id=${currentUser.id}`);
         const bets = await response.json();
         const betsList = document.getElementById('bets-list');
         
+        console.log('Loaded bets:', bets); 
+        
         if (!bets || bets.length === 0) {
             betsList.innerHTML = '<p style="text-align:center;color:#888;">No bets yet</p>';
             return;
         }
 
+        // ИСПРАВЛЕНО: объявляем переменные ДО использования в map
         betsList.innerHTML = bets.map(bet => {
-            const statusClass = bet.status === 'won' ? 'won' : bet.status === 'lost' ? 'lost' : 'pending';
+            // Определяем класс статуса
+            let statusClass = 'pending';
+            if (bet.status === 'won') statusClass = 'won';
+            if (bet.status === 'lost') statusClass = 'lost';
+            if (bet.status === 'cancelled') statusClass = 'pending';
+            
+            // Определяем эмодзи статуса
+            let statusEmoji = '⏳';
+            if (bet.status === 'won') statusEmoji = '✅';
+            if (bet.status === 'lost') statusEmoji = '❌';
+            if (bet.status === 'cancelled') statusEmoji = '🚫';
             
             return `
                 <div class="bet-card ${statusClass}">
                     <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
-                        <strong>${bet.matchInfo}</strong>
+                        <strong>${bet.matchInfo || 'Match'}</strong>
                         <span>${statusEmoji} ${bet.status.toUpperCase()}</span>
                     </div>
                     <div style="font-size:0.9em;color:#888;">
@@ -432,6 +445,8 @@ async function loadUserBets() {
                             ` Won: $${bet.actualWinnings.toFixed(2)}` :
                             bet.status === 'lost' ?
                             `Lost: $${bet.amount.toFixed(2)}` :
+                            bet.status === 'cancelled' ?
+                            `Refunded: $${bet.amount.toFixed(2)}` :
                             `Potential Win: $${bet.potentialWin.toFixed(2)}`
                         }
                     </div>
@@ -441,8 +456,12 @@ async function loadUserBets() {
                 </div>
             `;
         }).join('');
+        
+        console.log(' Bets loaded successfully');
     } catch (error) {
         console.error('Failed to load bets:', error);
+        document.getElementById('bets-list').innerHTML = 
+            '<p style="text-align:center;color:#e74c3c;"> Error loading bets. Check console for details.</p>';
     }
 }
 
@@ -529,7 +548,7 @@ async function settleMatch() {
             updateBalance();
             updateUserStats();
         } else {
-            alert(' ' + data.error);
+            alert('error ' + data.error);
         }
     } catch (error) {
         alert('Error: ' + error.message);
@@ -567,20 +586,21 @@ async function addBalance() {
             document.getElementById('add-balance-amount').value = '';
             updateBalance();
         } else {
-            alert(' ' + data.error);
+            alert('error ' + data.error);
         }
     } catch (error) {
         alert('Error: ' + error.message);
     }
 }
 
-
+// AUTO-REFRESH 
 setInterval(() => {
     if (currentUser && document.getElementById('matches-section').style.display === 'block') {
         loadMatches();
     }
 }, 30000); // Обновляем матчи каждые 30 секунд
 
+//INIT
 window.onload = () => {
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
